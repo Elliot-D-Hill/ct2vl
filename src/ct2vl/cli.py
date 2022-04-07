@@ -5,17 +5,17 @@ def configure_arguments():
     parser.add_argument(
         'infile',
         type=str,
-        help=("FIXME add a helpful message"))
+        help=("Filepath containing Ct values and PCR reaction traces"))
     parser.add_argument(
         'outfile',
         type=str,
-        help=("FIXME add a helpful message"))
+        help=("Filepath for the viral load estimates"))
     parser.add_argument(
-        'ctl',
+        'Ct_L',
         type=float,
-        help=("FIXME add a helpful message"))
+        help=("Ct value at the limit of detection (LoD)"))
     parser.add_argument(
-        'vl',
+        'v_L',
         type=float,
-        help=("FIXME add a helpful message"))
+        help=("Limit of detection (LoD): copies of SARS-CoV-2 viral genomes/mL (copies/mL; viral load at the LoD)"))
     return parser

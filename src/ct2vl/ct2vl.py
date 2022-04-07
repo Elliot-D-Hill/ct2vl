@@ -1,4 +1,6 @@
-from numpy import exp, log
+from numpy import exp, log, log10, median
+from pandas import DataFrame, concat, read_csv
+from scipy.stats import theilslopes
 
 
 def preprocess_traces(traces):
@@ -24,12 +26,38 @@ def get_max_efficiency(traces):
     efficiency = ratio - 1
     return efficiency.max()
 
-def ct_value_to_viral_load(ct, intercept, slope, ctl, vl):
+def get_intercept(slope, max_efficiency, ct_values):
+    return median(max_efficiency - (slope * ct_values))
+
+def fit_model(ct_values, max_efficiency):
+    slope, intercept, upper_ci_slope, lower_ci_slope = theilslopes(x=ct_values, y=max_efficiency)
+    lower_ci_intercept = get_intercept(lower_ci_slope, max_efficiency, ct_values)
+    upper_ci_intercept = get_intercept(upper_ci_slope, max_efficiency, ct_values)
+    intercepts = [intercept, lower_ci_intercept, upper_ci_intercept]
+    slopes = [slope, lower_ci_slope, upper_ci_slope]
+    return intercepts, slopes
+
+def ct_value_to_viral_load(Ct, intercept, slope, Ct_L, vl):
     intercept = slope + (intercept + 1)
-    ctl_efficiency = (slope * (ctl - 1)) + intercept
-    ct_efficiency = (slope * (ct - 1)) + intercept
-    efficiency_difference = (ctl_efficiency * log(ctl_efficiency)) - (ct_efficiency * log(ct_efficiency))
-    log_v = log(vl) + (efficiency_difference / slope) + ct - ctl
+    Ct_L_efficiency = (slope * (Ct_L - 1)) + intercept
+    Ct_efficiency = (slope * (Ct - 1)) + intercept
+    efficiency_difference = (Ct_L_efficiency * log(Ct_L_efficiency)) - (Ct_efficiency * log(Ct_efficiency))
+    log_v = log(vl) + (efficiency_difference / slope) + Ct - Ct_L
     return exp(log_v)
 
+def format_results(patient_ids, ct_values, viral_load):
+    viral_load = DataFrame(viral_load, index=['viral_load', 'lower_95_ci', 'upper_95_ci']).T
+    viral_load[['log10_viral_load', 'log10_lower_95_ci', 'log10_upper_95_ci']] = log10(viral_load)
+    return concat([patient_ids, ct_values, viral_load], axis=1)
 
+def convert_ct2vl(infile, Ct_L, v_L):
+    traces = read_csv(infile)
+    patient_ids = traces.pop('patient_id')
+    ct_values = traces.pop('ct_value')
+    processed_traces = preprocess_traces(traces)
+    max_efficiency = get_max_efficiency(processed_traces)
+    intercepts, slopes = fit_model(ct_values, max_efficiency)
+    viral_load = [ct_value_to_viral_load(ct_values, intercept, slope, Ct_L, v_L) 
+        for intercept, slope in zip(intercepts, slopes)]
+    return format_results(patient_ids, ct_values, viral_load)
+ 

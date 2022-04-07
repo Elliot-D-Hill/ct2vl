@@ -1,6 +1,6 @@
 from numpy import log, exp, isclose, array_equal
-from ct2vl.ct2vl import preprocess_traces, get_max_efficiency, ct_value_to_viral_load
 from pandas import DataFrame, Series
+from ct2vl.ct2vl import preprocess_traces, get_max_efficiency, ct_value_to_viral_load
 
 
 def test_preprcess_traces():

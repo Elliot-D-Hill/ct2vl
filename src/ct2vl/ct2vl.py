@@ -1,5 +1,5 @@
 from numpy import array, exp, log, log10, median
-from pandas import DataFrame, Series, concat
+from pandas import DataFrame
 from scipy.stats import theilslopes
 
 
@@ -49,7 +49,6 @@ def ct_value_to_viral_load(Ct, intercept, slope, Ct_L, vl):
     Ct = array(Ct)
     intercept = slope + (intercept + 1)
     Ct_L_efficiency = (slope * (Ct_L - 1)) + intercept
-    print(type(slope), type(intercept), type(Ct))
     Ct_efficiency = (slope * (Ct - 1)) + intercept
     efficiency_difference = (Ct_L_efficiency * log(Ct_L_efficiency)) - (Ct_efficiency * log(Ct_efficiency))
     log_v = log(vl) + (efficiency_difference / slope) + Ct - Ct_L
@@ -64,14 +63,15 @@ def format_results(ct_values, viral_load):
 
 
 def calibrate(traces):
-    ct_values = traces.pop('ct_value')
+    ct_values = traces.iloc[:, 0]
+    traces = traces.iloc[:, 1:]
     processed_traces = preprocess_traces(traces)
     max_efficiency = get_max_efficiency(processed_traces)
     return fit_model(ct_values, max_efficiency)
     
 
-def convert_ct2vl(ct_values, fit, Ct_L, v_L):
-    viral_load = [ct_value_to_viral_load(ct_values, intercept, slope, Ct_L, v_L) 
+def convert_ct2vl(ct_values, fit, Ct_at_LoD, LoD):
+    viral_load = [ct_value_to_viral_load(ct_values, intercept, slope, Ct_at_LoD, LoD) 
         for intercept, slope in zip(fit['intercept'], fit['slope'])]
     return format_results(ct_values, viral_load)
  

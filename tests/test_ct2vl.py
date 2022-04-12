@@ -1,64 +1,43 @@
-from numpy import arange, array, log, exp, isclose, array_equal, tile
-from pandas import DataFrame, Series
-from ct2vl.ct2vl import calibrate, fit_model, preprocess_traces, get_max_efficiency, ct_value_to_viral_load
+from numpy import allclose, log, exp
+from ct2vl.ct2vl import CT2VL, calibrate, fit_model, format_results, preprocess_traces, get_max_efficiency
+import cases
 
-
-def test_preprocess_traces():
-    input_case = DataFrame({
-        0: [1, 1, 0],
-        1: [2, 2, 0],
-        2: [3, 3, 0],
-        3: [-1, 1, 0],
-        4: [2, -2, 0],
-        5: [1, 1, 1],
-        6: [3, 2, 1]
-    })
-    output_case = DataFrame({
-        0: [1, 3, 3, 4],
-        1: [2, 2, 2, 3],
-        2: [1, 1, 2, 2]
-    })
-    processed_traces = preprocess_traces(input_case)
-    assert array_equal(processed_traces, output_case)
-
-def test_get_max_efficiency():
-    input_case = DataFrame({
-        0: [1, 2, 8, 10],
-        1: [1, 5, 6, 10]
-    })
-    output_case = Series([3, 4])
-    max_efficiency = get_max_efficiency(input_case)
-    assert array_equal(max_efficiency, output_case)
-
-def test_fit_model():
-    input_case = {
-        'ct_values': array([0, 0, 0, 0, 0, 1, 1, 1, 1, 1]),
-        'max_efficiency': array([0, 0, 0, 0, 0, 1, 1, 1, 1, 1])
-    }
-    output_case = DataFrame({
-        'type': ['estimate', 'lower_95_ci', 'upper_95_ci'],
-        'intercept': [0, 0, 0], 
-        'slope': [1, 1, 1]
-    })
-    model_fit = fit_model(**input_case)
-    assert array_equal(model_fit, output_case)
+CT_AT_LOD = 37.96
+LOD = 100.0
+CT = 25.0
+SLOPE = -0.006
+INTERCEPT = 1.0
 
 def ct2vl_alternate_derivation(ct, intercept, slope, ctl, vl):
     intercept = slope + (intercept + 1) 
     log_v = log(vl) + (ctl - 1 + intercept / slope) * log(slope * (ctl - 1) + intercept) - (ct - 1 + intercept / slope) * log(slope * (ct - 1) + intercept)  + ct - ctl
     return exp(log_v)
 
-def test_ct_value_to_viral_load():
-    ct_value_to_viral_load_input = [20.0, 1.0, -0.006, 37.96, 100.0]
-    alternate_viral_load = ct2vl_alternate_derivation(*ct_value_to_viral_load_input)
-    viral_load = ct_value_to_viral_load(*ct_value_to_viral_load_input)
-    assert isclose(alternate_viral_load, viral_load)
+def test_ct_to_viral_load():
+    alternate_viral_load = ct2vl_alternate_derivation(CT, INTERCEPT, SLOPE, CT_AT_LOD, LOD)
+    converter = CT2VL(LOD, CT_AT_LOD)
+    converter.slopes = SLOPE
+    converter.intercepts = INTERCEPT
+    viral_load = converter.ct_to_viral_load(CT)
+    assert allclose(alternate_viral_load, viral_load)
+
+def test_preprocess_traces():
+    processed_traces = preprocess_traces(cases.preprocess_traces_input)
+    assert allclose(processed_traces, cases.preprocess_traces_output)
+
+def test_get_max_efficiency():
+
+    max_efficiency = get_max_efficiency(cases.get_max_efficiency_input)
+    assert allclose(max_efficiency, cases.get_max_efficiency_output)
+
+def test_fit_model():
+    model_fit = fit_model(*cases.fit_model_input)
+    assert allclose(model_fit, cases.fit_model_output)
 
 def test_calibrate():
-    input_case = DataFrame(tile(2 ** arange(1, 10), (20, 1)))
-    input_case.insert(0, 'ct_value', [37.96] * 20)
-    output_case = DataFrame()
-    calibration = calibrate(input_case)
-    print(calibration)
-    assert array_equal(calibration, output_case)
-    
+    calibration = calibrate(cases.calibrate_input)
+    assert allclose(calibration, cases.calibrate_output)
+
+def test_format_results():
+    formatted_results = format_results(*cases.format_results_input)
+    assert allclose(formatted_results, cases.format_results_output)

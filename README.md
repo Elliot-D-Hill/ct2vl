@@ -24,7 +24,7 @@ or
 
     python3 -m ct2vl convert 23.1 31.8 28.4 34.0 30.2
 
-Output can saved to a file by providing a filepath to the optional flag `--output`
+Output can be saved to a file by providing a filepath to the optional flag `--output`
 
   python3 -m ct2vl convert 23.1 --output Results/viral_loads.tsv
 
@@ -351,13 +351,7 @@ For `calibrate` mode, `infile` is a csv file where each row corresponds to a run
 </div>
 
 
-## Output
-
-The command line tool output is tab separated and is pipable, e.g.,
-
-    python3 -m ct2vl convert 23.1 31.8 28.4 34.0 30.2 > results.tsv
-
-The function `convert_ct2vl` in the python package returns the results in a pandas dataframe.
+## Example output
 
 <div>
 <table border="1" class="dataframe">

@@ -27,7 +27,6 @@ def configure_arguments():
     parser_convert.add_argument(
         '-o',
         '--outfile',
-        default=stdout,
         type=str,
         help='Filepath for results')
     return parser

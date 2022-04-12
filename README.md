@@ -13,7 +13,7 @@ For example
 
     python3 -m ct2vl calibrate 37.96 100.0 positive_traces_with_ct_values.csv
 
-Once ct2vl has been calibrated, convert Ct values to viral loads run
+Once ct2vl has been calibrated, Ct values can we converted to viral loads with
 
     python3 -m ct2vl convert Ct
 
@@ -24,16 +24,19 @@ or
 
     python3 -m ct2vl convert 23.1 31.8 28.4 34.0 30.2
 
+Output can saved to a file by providing a filepath to the optional flag `--output`
+
+  python3 -m ct2vl convert 23.1 --output Results/viral_loads.tsv
 
 ### Python package
 ```python
-    from ct2vl.ct2vl import calibrate, convert_ct2vl
+    from ct2vl.ct2vl import CT2VL
     from pandas import read_csv
 
     traces = pd.read_csv('Data/positive_traces_with_ct_values.csv')
-    calibration = calibrate(traces)
+    converter = CT2VL(traces, Ct_at_LoD=37.96, LoD=100.0)
     ct_values = [23.1, 31.8, 28.4, 34.0, 30.2]
-    viral_load = convert_ct2vl(ct_values, calibration, Ct_at_LoD=37.96, LoD=100.0)
+    viral_load = converter.convert(ct_values)
 ```
 
 ## Input

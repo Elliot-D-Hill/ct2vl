@@ -1,23 +1,23 @@
 from argparse import ArgumentParser
-from sys import stdout
 
-def configure_arguments():
+def configure_arguments(args):
     parser = ArgumentParser()
     subparsers = parser.add_subparsers(dest='mode', help='modes include: calibrate or convert')
 
     parser_calibrate = subparsers.add_parser('calibrate', help='Calibrates ct2vl')
     parser_calibrate.add_argument(
-        'Ct_at_LoD',
-        type=float,
-        help=("Ct value at the limit of detection (LoD)"))
-    parser_calibrate.add_argument(
         'LoD',
         type=float,
         help=("Limit of detection (LoD): copies of SARS-CoV-2 viral genomes/mL (copies/mL; viral load at the LoD)"))
     parser_calibrate.add_argument(
+        'Ct_at_LoD',
+        type=float,
+        help=("Ct value at the limit of detection (LoD)"))
+    parser_calibrate.add_argument(
         'infile',
         type=str,
         help=("Filepath to a csv file containing Ct values and PCR reaction traces"))
+
     parser_convert = subparsers.add_parser('convert', help='Predicts viral load from given Ct values')
     parser_convert.add_argument(
         'Ct', 
@@ -29,4 +29,4 @@ def configure_arguments():
         '--outfile',
         type=str,
         help='Filepath for results')
-    return parser
+    return parser.parse_args(args)

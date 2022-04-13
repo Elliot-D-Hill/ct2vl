@@ -1,7 +1,7 @@
-from dataclasses import InitVar, dataclass, field
-import pickle
-from numpy import array, concatenate, exp, log, log10, median, ndarray
-from pandas import DataFrame
+from dataclasses import dataclass, field
+from pickle import dump, load
+from numpy import array, concatenate, exp, log, log10, median
+from pandas import DataFrame, read_csv
 from scipy.stats import theilslopes
 
 
@@ -9,19 +9,16 @@ from scipy.stats import theilslopes
 class CT2VL:
     LoD: float
     Ct_at_LoD: float
-    traces: InitVar[DataFrame] = None
     intercepts: float = field(init=False)
     slopes: float = field(init=False)
 
-    def __post_init__(self, traces):
-        if traces is None:
-            return
-        elif isinstance(traces, ndarray):
-            traces = DataFrame(traces)
-        elif not isinstance(traces, DataFrame):
-            ValueError('traces must be a pandas dataframe or numpy ndarray')
-        else:
-            self.slopes, self.intercepts = calibrate(traces)
+    def calibrate(self, traces_filepath):
+        traces = read_csv(traces_filepath)
+        ct_values = traces.iloc[:, 0]
+        traces = traces.iloc[:, 1:]
+        processed_traces = preprocess_traces(traces)
+        max_efficiency = get_max_efficiency(processed_traces)
+        self.slopes, self.intercepts = fit_model(ct_values, max_efficiency)
     
     def ct_to_viral_load(self, Ct):
         Ct = array(Ct).reshape(-1, 1)
@@ -34,12 +31,12 @@ class CT2VL:
 
     def save(self, filepath):
         with open(filepath, 'wb') as f:
-            pickle.dump(self, f)
+            dump(self, f)
 
     @classmethod
     def load(cls, filepath):
         with open(filepath, 'rb') as f:
-            return pickle.load(f)
+            return load(f)
 
 
 def preprocess_traces(traces):
@@ -72,13 +69,6 @@ def fit_model(ct_values, max_efficiency):
     slopes = array([slope, low_95ci_slope, high_95ci_slope])
     intercepts = array([intercept, low_95ci_intercept, high_95ci_intercept])
     return slopes, intercepts
-
-def calibrate(traces):
-    ct_values = traces.iloc[:, 0]
-    traces = traces.iloc[:, 1:]
-    processed_traces = preprocess_traces(traces)
-    max_efficiency = get_max_efficiency(processed_traces)
-    return fit_model(ct_values, max_efficiency)
 
 def format_results(Ct, viral_load):
     Ct = array(Ct).reshape(-1, 1)

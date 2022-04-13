@@ -128,5 +128,6 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
+calibration.pkl
 Data/
 .DS_Store/

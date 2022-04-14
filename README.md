@@ -7,11 +7,11 @@ A command line tool and python package to convert SARS-CoV-2 Ct values to viral 
 
 To calibrate ct2vl run
 
-    python3 -m ct2vl calibrate Ct_L v_L example/path/to/data
+    python3 -m ct2vl calibrate LoD Ct_at_LoD example/path/to/data
 
 For example
 
-    python3 -m ct2vl calibrate 37.96 100.0 positive_traces_with_ct_values.csv
+    python3 -m ct2vl calibrate 100.0 37.96 positive_traces_with_ct_values.csv
 
 Once ct2vl has been calibrated, Ct values can we converted to viral loads with
 
@@ -31,10 +31,10 @@ Output can be saved to a file by providing a filepath to the optional flag `--ou
 ### Python package
 ```python
     from ct2vl.ct2vl import CT2VL
-    from pandas import read_csv
 
-    traces = pd.read_csv('Data/positive_traces_with_ct_values.csv')
-    converter = CT2VL(traces, Ct_at_LoD=37.96, LoD=100.0)
+    traces_filepath = 'Data/positive_traces_with_ct_values.csv'
+    converter = CT2VL(LoD=100.0, Ct_at_LoD=37.96)
+    converter.calibrate(traces_filepath)
     ct_values = [23.1, 31.8, 28.4, 34.0, 30.2]
     viral_load = converter.convert(ct_values)
 ```
@@ -44,14 +44,14 @@ Output can be saved to a file by providing a filepath to the optional flag `--ou
 The command line tool has two modes `calibrate` and `convert`.
 
 * `mode`: `calibrate` uses positive PCR traces and their corresponding Ct values to calibrate ct2vl for a given machine
-   1. `Ct_at_LoD`: Ct value at the limit of detection (LoD)
-   2. `LoD`: Limit of detection (LoD): copies of SARS-CoV-2 viral genomes/mL (copies/mL; viral load at the LoD)
+   1. `LoD`: Limit of detection (LoD): copies of SARS-CoV-2 viral genomes/mL (copies/mL; viral load at the LoD)
+   2. `Ct_at_LoD`: Ct value at the limit of detection (LoD)
    3. `infile`: Filepath to a csv file containing Ct values and PCR reaction traces
 * `mode`: `convert` calculates the viral loads for given Ct values
     1. `Ct`: A list of Ct values that will be converted to viral loads
     2. `--outfile`: An optional filepath to save the results to
 
-For `calibrate` mode, `infile` is a csv file where each row corresponds to a run and the first column contains the Ct values for each run and the remaining columns contain the values at each cycle.
+For `calibrate` mode, `infile` is a csv file where each row corresponds to a run and the first column contains the Ct values for each run and the remaining columns contain the values at each cycle (example below).
 
 <div>
 <table border="1" class="dataframe">

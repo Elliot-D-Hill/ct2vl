@@ -1,6 +1,6 @@
 from argparse import ArgumentParser
 
-def configure_arguments(args):
+def configure_arguments():
     parser = ArgumentParser()
     subparsers = parser.add_subparsers(dest='mode', help='modes include: calibrate or convert')
 
@@ -29,4 +29,4 @@ def configure_arguments(args):
         '--outfile',
         type=str,
         help='Filepath for results')
-    return parser.parse_args(args)
+    return parser.parse_args()

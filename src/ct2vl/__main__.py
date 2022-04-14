@@ -2,13 +2,12 @@ from ct2vl.cli import configure_arguments
 from ct2vl.ct2vl import CT2VL, format_results
 from pathlib import Path
 from os.path import abspath, dirname
-from sys import argv
 
 def main():
     module_path = Path(abspath(dirname(__file__)))
     filename = Path('calibration.pkl')
     calibration_filepath = module_path / filename
-    args = configure_arguments(argv[1:])
+    args = configure_arguments()
     if args.mode == 'calibrate':
         converter = CT2VL(args.LoD, args.Ct_at_LoD)
         converter.calibrate(args.infile)

@@ -22,7 +22,7 @@ def main():
         formatted_results = format_results(args.Ct, viral_load)
         print(formatted_results)
         if args.outfile:
-            formatted_results.to_csv(args.outfile, sep='\t', float_format='%.3f', index=False)
+            formatted_results.to_csv(args.outfile, sep='\t', float_format='%.3f', index=False) 
 
 if __name__ == '__main__':
-    main()
+    main() # pragma: no cover

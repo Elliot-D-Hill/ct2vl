@@ -59,19 +59,19 @@ format_results_output = DataFrame({
     'log10_high_95ci': {0: 0.0, 1: 0.0}
  })
 
-configure_arguments_calibrate_input = ['calibrate', '37.96', '100.0', 'test.csv']
+configure_arguments_calibrate_input = ['calibrate', '37.96', '100.0', 'test.tsv']
 configure_arguments_calibrate_output = Namespace(
     mode='calibrate', 
     LoD=37.96, 
     Ct_at_LoD=100.0, 
-    infile='test.csv'
+    infile='test.tsv'
 )
 
-configure_arguments_convert_input = ['convert', '37.96', '--outfile', 'test.csv']
+configure_arguments_convert_input = ['convert', '37.96', '--outfile', 'test.tsv']
 configure_arguments_convert_output = Namespace(
     mode='convert', 
     Ct=[37.96], 
-    outfile='test.csv'
+    outfile='test.tsv'
 )
 
 main_convert_output = DataFrame({

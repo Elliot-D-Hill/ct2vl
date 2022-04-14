@@ -1,5 +1,5 @@
-# ct2vl: Ct values to viral load
-A command line tool and python package to convert SARS-CoV-2 Ct values to viral load.
+# ct2vl: C<sub>t</sub> values to viral load
+A command line tool and python package to convert SARS-CoV-2 PCR C<sub>t</sub> values to viral load.
 
 ## Usage
 
@@ -13,11 +13,11 @@ For example
 
     python3 -m ct2vl calibrate 100.0 37.96 positive_traces_with_ct_values.csv
 
-Once ct2vl has been calibrated, Ct values can be converted to viral loads with
+Once ct2vl has been calibrated, C<sub>t</sub> values can be converted to viral loads with
 
     python3 -m ct2vl convert <Ct>
 
-One or multiple Ct values can be passed. For example
+One or multiple C<sub>t</sub> values can be passed. For example
 
     python3 -m ct2vl convert 23.1
 or
@@ -43,12 +43,12 @@ viral_load = converter.convert(ct_values)
 
 The command line tool has two modes `calibrate` and `convert`.
 
-* `mode`: `calibrate` uses positive PCR traces and their corresponding Ct values to calibrate ct2vl for a given machine
+* `mode`: `calibrate` uses positive PCR traces and their corresponding C<sub>t</sub> values to calibrate ct2vl for a given machine
    1. `LoD`: Limit of detection (LoD): copies of SARS-CoV-2 viral genomes/mL (copies/mL; viral load at the LoD)
-   2. `Ct_at_LoD`: Ct value at the limit of detection (LoD)
-   3. `infile`: Filepath to a csv file containing Ct values and PCR reaction traces
-* `mode`: `convert` calculates the viral loads for given Ct values
-    1. `Ct`: A list of Ct values that will be converted to viral loads
+   2. `Ct_at_LoD`: C<sub>t</sub> value at the limit of detection (LoD)
+   3. `infile`: Filepath to a csv file containing C<sub>t</sub> values and PCR reaction traces
+* `mode`: `convert` calculates the viral loads for given C<sub>t</sub> values
+    1. `Ct`: A list of C<sub>t</sub> values that will be converted to viral loads
     2. `--outfile`: An optional filepath to save the results to
 
 For `calibrate` mode, `infile` is a csv file where each row corresponds to a run and the first column contains the Ct values for each run and the remaining columns contain the values at each cycle (example below).

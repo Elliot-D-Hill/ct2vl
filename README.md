@@ -7,15 +7,15 @@ A command line tool and python package to convert SARS-CoV-2 Ct values to viral 
 
 To calibrate ct2vl run
 
-    python3 -m ct2vl calibrate LoD Ct_at_LoD example/path/to/data
+    python3 -m ct2vl calibrate <LoD> <Ct_at_LoD> <infile>
 
 For example
 
     python3 -m ct2vl calibrate 100.0 37.96 positive_traces_with_ct_values.csv
 
-Once ct2vl has been calibrated, Ct values can we converted to viral loads with
+Once ct2vl has been calibrated, Ct values can be converted to viral loads with
 
-    python3 -m ct2vl convert Ct
+    python3 -m ct2vl convert <Ct>
 
 One or multiple Ct values can be passed. For example
 
@@ -30,13 +30,13 @@ Output can be saved to a file by providing a filepath to the optional flag `--ou
 
 ### Python package
 ```python
-    from ct2vl.ct2vl import CT2VL
+from ct2vl.ct2vl import CT2VL
 
-    traces_filepath = 'Data/positive_traces_with_ct_values.csv'
-    converter = CT2VL(LoD=100.0, Ct_at_LoD=37.96)
-    converter.calibrate(traces_filepath)
-    ct_values = [23.1, 31.8, 28.4, 34.0, 30.2]
-    viral_load = converter.convert(ct_values)
+traces_filepath = 'Data/positive_traces_with_ct_values.csv'
+converter = CT2VL(LoD=100.0, Ct_at_LoD=37.96)
+converter.calibrate(traces_filepath)
+ct_values = [23.1, 31.8, 28.4, 34.0, 30.2]
+viral_load = converter.convert(ct_values)
 ```
 
 ## Input

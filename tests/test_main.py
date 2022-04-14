@@ -9,15 +9,13 @@ from ct2vl.__main__ import main
 from tests.test_ct2vl import LOD, CT_AT_LOD
 
 def test_main_calibrate(tmp_path, monkeypatch):
-    test_args = cases.configure_arguments_calibrate_input
-    print(test_args)
+    sys.argv[1:] = cases.configure_arguments_calibrate_input
     infile_path = str(tmp_path / 'test.csv')
-    calibration_filepath = tmp_path/'calibration.pkl'
-    test_args[-1] = infile_path
+    sys.argv[-1] = infile_path
     cases.calibrate_input.to_csv(infile_path, index=False)
+    calibration_filepath = tmp_path/'calibration.pkl'
     with monkeypatch.context() as patched_context:
         patched_context.setattr('ct2vl.__main__.__file__', f'{tmp_path}/__main__.py')
-        sys.argv[1:] = test_args
         main()
         with open(calibration_filepath, 'rb') as f:
             converter = load(f)
@@ -26,16 +24,15 @@ def test_main_calibrate(tmp_path, monkeypatch):
     assert allclose(test_converter.slopes, converter.slopes)
 
 def test_main_convert_uncalibrated(tmp_path, monkeypatch):
-    test_args = cases.configure_arguments_convert_input
+    sys.argv[1:] = cases.configure_arguments_convert_input
     with monkeypatch.context() as patched_context:
         patched_context.setattr('ct2vl.__main__.__file__', f'{tmp_path}/__main__.py')
-        sys.argv[1:] = test_args
         with raises(Exception):
             main()
 
 def test_main_convert(tmp_path, monkeypatch):
-    test_args = cases.configure_arguments_convert_input
-    test_args[-1] = str(tmp_path / test_args[-1])
+    sys.argv[1:] = cases.configure_arguments_convert_input
+    sys.argv[-1] = str(tmp_path / sys.argv[-1])
     calibration_filepath = tmp_path / 'calibration.pkl'
     intercepts = array([1, 1, 1])
     slopes = array([-0.001, -0.001, -0.001])
@@ -43,6 +40,5 @@ def test_main_convert(tmp_path, monkeypatch):
     converter.save(calibration_filepath)
     with monkeypatch.context() as patched_context:
         patched_context.setattr('ct2vl.__main__.__file__', f'{tmp_path}/__main__.py')
-        sys.argv[1:] = test_args
         main()
-    assert allclose(read_csv(test_args[-1], sep='\t'), cases.main_convert_output)
+    assert allclose(read_csv(sys.argv[-1], sep='\t'), cases.main_convert_output)

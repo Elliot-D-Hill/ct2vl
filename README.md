@@ -26,7 +26,7 @@ or
 
 Output can be saved to a file by providing a filepath to the optional flag `--output`
 
-  python3 -m ct2vl convert 23.1 --output Results/viral_loads.tsv
+    python3 -m ct2vl convert 23.1 --output Results/viral_loads.tsv
 
 ### Python package
 ```python

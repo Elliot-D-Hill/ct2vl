@@ -1,33 +1,49 @@
 from dataclasses import dataclass, field
 from pickle import dump, load
-from numpy import array, concatenate, exp, log, log10, median
+from numpy import array, concatenate, exp, log, log10
 from pandas import DataFrame, read_csv
-from scipy.stats import theilslopes
+from sklearn.linear_model import LinearRegression
 
 
 @dataclass
 class CT2VL:
     LoD: float
     Ct_at_LoD: float
-    intercepts: float = field(init=False)
-    slopes: float = field(init=False)
+    intercept: float = field(init=False)
+    slope: float = field(init=False)
+
+    def efficiency(self, Ct):
+        return (self.slope * Ct) + self.intercept
+
+    def fit_model(self, X, y):
+        model = LinearRegression(fit_intercept=True)
+        model.fit(X=X, y=y)
+        self.intercept = model.intercept_
+        self.slope = model.coef_[0]
 
     def calibrate(self, traces_filepath):
         traces = read_csv(traces_filepath)
+        traces = traces.reset_index(drop=True)
         ct_values = traces.iloc[:, 0]
         traces = traces.iloc[:, 1:]
         processed_traces = preprocess_traces(traces)
-        max_efficiency = get_max_efficiency(processed_traces)
-        self.slopes, self.intercepts = fit_model(ct_values, max_efficiency)
-    
+        max_efficiency, cycle_at_max_efficency = get_max_efficiency(processed_traces)
+        cycle_at_max_efficency = cycle_at_max_efficency.to_numpy().reshape(-1, 1)
+        ct_values = ct_values.to_numpy().reshape(-1, 1)
+        self.fit_model(ct_values, max_efficiency)
+
     def ct_to_viral_load(self, Ct):
         Ct = array(Ct).reshape(-1, 1)
-        self.intercepts = self.slopes + (self.intercepts + 1)
-        Ct_L_efficiency = (self.slopes * (self.Ct_at_LoD - 1)) + self.intercepts
-        Ct_efficiency = (self.slopes * (Ct - 1)) + self.intercepts
-        efficiency_difference = (Ct_L_efficiency * log(Ct_L_efficiency)) - (Ct_efficiency * log(Ct_efficiency))
-        log_viral_load = log(self.LoD) + (efficiency_difference / self.slopes) + Ct - self.Ct_at_LoD
+        self.intercept          = self.intercept + 1
+        Ct_L_efficiency         = (self.slope * self.Ct_at_LoD) + self.intercept
+        Ct_efficiency           = (self.slope * Ct) + self.intercept
+        efficiency_difference   = (Ct_L_efficiency * log(Ct_L_efficiency)) - (Ct_efficiency * log(Ct_efficiency))
+        log_viral_load          = log(self.LoD) + (efficiency_difference / self.slope) + Ct - self.Ct_at_LoD
         return exp(log_viral_load)
+
+    def convert(self, Ct):
+        viral_loads = self.ct_to_viral_load(Ct)
+        return format_results(Ct, viral_loads)
 
     def save(self, filepath):
         with open(filepath, 'wb') as f:
@@ -60,20 +76,13 @@ def get_max_efficiency(traces):
         )
     )
     efficiency = ratio - 1
-    return efficiency.max()
-
-def fit_model(ct_values, max_efficiency):
-    slope, intercept, low_95ci_slope, high_95ci_slope = theilslopes(x=ct_values, y=max_efficiency)
-    low_95ci_intercept = median(max_efficiency - (low_95ci_slope * ct_values))
-    high_95ci_intercept = median(max_efficiency - (high_95ci_slope * ct_values))
-    slopes = array([slope, low_95ci_slope, high_95ci_slope])
-    intercepts = array([intercept, low_95ci_intercept, high_95ci_intercept])
-    return slopes, intercepts
+    return efficiency.max(), efficiency.idxmax()
 
 def format_results(Ct, viral_load):
     Ct = array(Ct).reshape(-1, 1)
-    results = concatenate([Ct, viral_load, log10(viral_load)], axis=1)
-    columns=['ct_value', 'viral_load', 'low_95ci', 'high_95ci', 'log10_viral_load', 'log10_low_95ci', 'log10_high_95ci']
+    # viral_load = viral_load.to_numpy().reshape(-1, 1)
+    log10_viral_load = log10(viral_load)
+    results = concatenate([Ct, viral_load, log10_viral_load], axis=1)
+    columns=['ct_value', 'viral_load', 'log10_viral_load']
     return DataFrame(results, columns=columns)
-
  

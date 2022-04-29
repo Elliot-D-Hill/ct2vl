@@ -1,49 +1,42 @@
 from dataclasses import dataclass, field
 from pickle import dump, load
+
 from numpy import array, concatenate, exp, log, log10
 from pandas import DataFrame, read_csv
+from scipy.integrate import quad
 from sklearn.linear_model import LinearRegression
 
 
 @dataclass
 class CT2VL:
-    LoD: float
-    Ct_at_LoD: float
-    intercept: float = field(init=False)
-    slope: float = field(init=False)
+    filepath: str
+    cycle_at_max_rho: array = field(init=False)
+    max_rho: array = field(init=False)
+    model: LinearRegression = field(init=False)
 
-    def efficiency(self, Ct):
-        return (self.slope * Ct) + self.intercept
+    def __post_init__(self):
+        self.cycle_at_max_rho, self.max_rho = self.make_data()
+        self.calibrate(self.cycle_at_max_rho, self.max_rho)
+        
+    def calibrate(self, X, y):
+        self.model = LinearRegression().fit(X=X, y=y)
 
-    def fit_model(self, X, y):
-        model = LinearRegression(fit_intercept=True)
-        model.fit(X=X, y=y)
-        self.intercept = model.intercept_
-        self.slope = model.coef_[0]
-
-    def calibrate(self, traces_filepath):
-        traces = read_csv(traces_filepath)
-        traces = traces.reset_index(drop=True)
-        ct_values = traces.iloc[:, 0]
-        traces = traces.iloc[:, 1:]
+    def make_data(self):
+        traces = read_csv(self.filepath)
         processed_traces = preprocess_traces(traces)
-        max_efficiency, cycle_at_max_efficency = get_max_efficiency(processed_traces)
-        cycle_at_max_efficency = cycle_at_max_efficency.to_numpy().reshape(-1, 1)
-        ct_values = ct_values.to_numpy().reshape(-1, 1)
-        self.fit_model(ct_values, max_efficiency)
+        cycle_at_max_rho, max_rho = get_max_rho(processed_traces)
+        cycle_at_max_rho = cycle_at_max_rho.to_numpy().reshape(-1, 1)
+        max_rho = max_rho.to_numpy().reshape(-1, 1)
+        return cycle_at_max_rho, max_rho
 
-    def ct_to_viral_load(self, Ct):
-        Ct = array(Ct).reshape(-1, 1)
-        self.intercept          = self.intercept + 1
-        Ct_L_efficiency         = (self.slope * self.Ct_at_LoD) + self.intercept
-        Ct_efficiency           = (self.slope * Ct) + self.intercept
-        efficiency_difference   = (Ct_L_efficiency * log(Ct_L_efficiency)) - (Ct_efficiency * log(Ct_efficiency))
-        log_viral_load          = log(self.LoD) + (efficiency_difference / self.slope) + Ct - self.Ct_at_LoD
+    def rho(self, Ct):
+        return log(self.model.predict(array([[Ct]])))
+
+    def ct_to_viral_load(self, Ct, LoD, Ct_at_LoD):
+        integral_Ct, _ = quad(self.rho, 0, Ct)
+        integral_Ct_at_LoD, _ = quad(self.rho, 0, Ct_at_LoD)
+        log_viral_load = log(LoD) + integral_Ct_at_LoD - integral_Ct
         return exp(log_viral_load)
-
-    def convert(self, Ct):
-        viral_loads = self.ct_to_viral_load(Ct)
-        return format_results(Ct, viral_loads)
 
     def save(self, filepath):
         with open(filepath, 'wb') as f:
@@ -53,7 +46,6 @@ class CT2VL:
     def load(cls, filepath):
         with open(filepath, 'rb') as f:
             return load(f)
-
 
 def preprocess_traces(traces):
     traces = traces.T
@@ -67,20 +59,14 @@ def preprocess_traces(traces):
     traces = traces + 1
     return traces
 
-def get_max_efficiency(traces):
+def get_max_rho(traces):
     # Divide i+1th value by the ith value
-    ratio = (traces
-        .div(traces
-            .shift()
-            .bfill()
-        )
-    )
-    efficiency = ratio - 1
-    return efficiency.max(), efficiency.idxmax()
+    rho = (traces.div(traces.shift().bfill()))
+    return rho.idxmax(), rho.max()
 
 def format_results(Ct, viral_load):
     Ct = array(Ct).reshape(-1, 1)
-    # viral_load = viral_load.to_numpy().reshape(-1, 1)
+    viral_load = viral_load.reshape(-1, 1)
     log10_viral_load = log10(viral_load)
     results = concatenate([Ct, viral_load, log10_viral_load], axis=1)
     columns=['ct_value', 'viral_load', 'log10_viral_load']

@@ -1,7 +1,5 @@
 from dataclasses import dataclass, field
-from pickle import dump, load
-
-from numpy import array, concatenate, exp, log, log10
+from numpy import array, exp, log
 from pandas import DataFrame, read_csv
 from scipy.integrate import quad
 from sklearn.linear_model import LinearRegression
@@ -10,6 +8,8 @@ from sklearn.linear_model import LinearRegression
 @dataclass
 class CT2VL:
     filepath: str
+    LoD: float
+    Ct_at_LoD: float
     cycle_at_max_rho: array = field(init=False)
     max_rho: array = field(init=False)
     model: LinearRegression = field(init=False)
@@ -32,20 +32,16 @@ class CT2VL:
     def rho(self, Ct):
         return log(self.model.predict(array([[Ct]])))
 
-    def ct_to_viral_load(self, Ct, LoD, Ct_at_LoD):
-        integral_Ct, _ = quad(self.rho, 0, Ct)
-        integral_Ct_at_LoD, _ = quad(self.rho, 0, Ct_at_LoD)
-        log_viral_load = log(LoD) + integral_Ct_at_LoD - integral_Ct
-        return exp(log_viral_load)
-
-    def save(self, filepath):
-        with open(filepath, 'wb') as f:
-            dump(self, f)
-
-    @classmethod
-    def load(cls, filepath):
-        with open(filepath, 'rb') as f:
-            return load(f)
+    def ct_to_viral_load(self, Ct):
+        Ct = array([Ct]).flatten()
+        viral_loads = []
+        for ct_i in Ct:
+            integral_Ct, _ = quad(self.rho, 0, ct_i)
+            integral_Ct_at_LoD, _ = quad(self.rho, 0, self.Ct_at_LoD)
+            log_viral_load = log(self.LoD) + integral_Ct_at_LoD - integral_Ct
+            viral_load = exp(log_viral_load)
+            viral_loads.append(viral_load)
+        return array(viral_loads)
 
 def preprocess_traces(traces):
     traces = traces.T
@@ -63,12 +59,4 @@ def get_max_rho(traces):
     # Divide i+1th value by the ith value
     rho = (traces.div(traces.shift().bfill()))
     return rho.idxmax(), rho.max()
-
-def format_results(Ct, viral_load):
-    Ct = array(Ct).reshape(-1, 1)
-    viral_load = viral_load.reshape(-1, 1)
-    log10_viral_load = log10(viral_load)
-    results = concatenate([Ct, viral_load, log10_viral_load], axis=1)
-    columns=['ct_value', 'viral_load', 'log10_viral_load']
-    return DataFrame(results, columns=columns)
  

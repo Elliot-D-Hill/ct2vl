@@ -12,7 +12,7 @@ def main():
     calibration_filepath = module_path / filename
     args = configure_arguments()
     if args.mode == 'calibrate':
-        converter = CT2VL(args.infile, args.LoD, args.Ct_at_LoD)
+        converter = CT2VL(args.infile)
         with open(calibration_filepath, 'wb') as f:
             dump(converter, f)
         print('Calibration complete.')
@@ -21,7 +21,8 @@ def main():
             raise ValueError("You must calibrate ct2vl before you can use the convert argument")
         with open(calibration_filepath, 'rb') as f:
             calibrated_converter = load(f)
-        viral_load = calibrated_converter.ct_to_viral_load(args.Ct)
+        print(args)
+        viral_load = calibrated_converter.ct_to_viral_load(args.Ct, args.LoD, args.Ct_at_LoD)
         log10_viral_load = log10(viral_load)
         results = column_stack([args.Ct, viral_load, log10_viral_load])
         columns=['ct_value', 'viral_load', 'log10_viral_load']

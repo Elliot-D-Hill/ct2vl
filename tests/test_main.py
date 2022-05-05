@@ -18,8 +18,7 @@ def test_main_calibrate(tmp_path, monkeypatch):
         main()
         with open(calibration_filepath, 'rb') as f:
             converter = load(f)
-    assert allclose(cases.main_calibrate_output[0], converter.model.intercept_)
-    assert allclose(cases.main_calibrate_output[1], converter.model.coef_)
+    assert allclose(cases.calibrate_output, converter.model['linearregression'].coef_)
 
 def test_main_convert_uncalibrated(tmp_path, monkeypatch):
     sys.argv[1:] = cases.configure_arguments_convert_input

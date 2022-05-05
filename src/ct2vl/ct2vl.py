@@ -1,62 +1,71 @@
 from dataclasses import dataclass, field
-from numpy import array, exp, log
+from typing import Union
+from numpy import array, exp, log, ndarray
 from pandas import DataFrame, read_csv
 from scipy.integrate import quad
 from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import GridSearchCV
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import PolynomialFeatures
 
 
 @dataclass
 class CT2VL:
-    filepath: str
-    LoD: float
-    Ct_at_LoD: float
-    cycle_at_max_rho: array = field(init=False)
-    max_rho: array = field(init=False)
+    traces: Union[str, DataFrame, ndarray]
+    max_replication_rate_cycle: array = field(init=False)
+    max_replication_rate: array = field(init=False)
     model: LinearRegression = field(init=False)
 
     def __post_init__(self):
-        self.cycle_at_max_rho, self.max_rho = self.make_data()
-        self.calibrate(self.cycle_at_max_rho, self.max_rho)
-        
-    def calibrate(self, X, y):
-        self.model = LinearRegression().fit(X=X, y=y)
+        self.get_traces(self.traces)
+        self.preprocess_traces()
+        self.get_max_replication_rate()
+        self.calibrate()
+    
+    def get_traces(self, traces):
+        options = {
+            str: read_csv,
+            DataFrame: lambda df: df,
+            ndarray: DataFrame
+        }
+        self.traces = options[type(traces)](traces)
 
-    def make_data(self):
-        traces = read_csv(self.filepath)
-        processed_traces = preprocess_traces(traces)
-        cycle_at_max_rho, max_rho = get_max_rho(processed_traces)
-        cycle_at_max_rho = cycle_at_max_rho.to_numpy().reshape(-1, 1)
-        max_rho = max_rho.to_numpy().reshape(-1, 1)
-        return cycle_at_max_rho, max_rho
+    def preprocess_traces(self):
+        self.traces = self.traces.T
+        # Remove first 3 rows, since early values tend to be noise
+        self.traces = self.traces.iloc[3:]
+        # Negative values are noise, so we can set them to zero.
+        self.traces[self.traces < 0] = 0
+        # Theoretically, product should only increase, so we can make the data monotonic.
+        self.traces = self.traces.cummax()
+        # Add a positive constant to prevent division by zero
+        self.traces = self.traces + 1
 
-    def rho(self, Ct):
+    def get_max_replication_rate(self):
+        # Divide i+1th value by the ith value
+        replication_rate = (self.traces.div(self.traces.shift().bfill()))
+        self.max_replication_rate_cycle = replication_rate.idxmax().astype(int).to_numpy().reshape(-1, 1)
+        self.max_replication_rate = replication_rate.max().to_numpy().reshape(-1, 1)
+
+    def calibrate(self):
+        pipeline = make_pipeline(
+            PolynomialFeatures(),
+            LinearRegression(fit_intercept=False)
+        )
+        cv = GridSearchCV(pipeline, {'polynomialfeatures__degree': [1, 2, 3]})
+        cv.fit(X=self.max_replication_rate_cycle, y=self.max_replication_rate)
+        self.model = cv.best_estimator_
+
+    def log_replication_rate(self, Ct):
         return log(self.model.predict(array([[Ct]])))
 
-    def ct_to_viral_load(self, Ct):
+    def ct_to_viral_load(self, Ct, LoD, Ct_at_LoD):
         Ct = array([Ct]).flatten()
         viral_loads = []
         for ct_i in Ct:
-            integral_Ct, _ = quad(self.rho, 0, ct_i)
-            integral_Ct_at_LoD, _ = quad(self.rho, 0, self.Ct_at_LoD)
-            log_viral_load = log(self.LoD) + integral_Ct_at_LoD - integral_Ct
+            integral_Ct, _ = quad(self.log_replication_rate, 0, ct_i)
+            integral_Ct_at_LoD, _ = quad(self.log_replication_rate, 0, Ct_at_LoD)
+            log_viral_load = log(LoD) + integral_Ct_at_LoD - integral_Ct
             viral_load = exp(log_viral_load)
             viral_loads.append(viral_load)
-        return array(viral_loads)
-
-def preprocess_traces(traces):
-    traces = traces.T
-    # Remove first 3 rows, since early values tend to be noise
-    traces = traces.iloc[3:]
-    # Negative values are noise, so we can set them to zero.
-    traces[traces < 0] = 0
-    # Theoretically, product should only increase, so we can make the data monotonic.
-    traces = traces.cummax()
-    # Add a positive constant to prevent division by zero
-    traces = traces + 1
-    return traces
-
-def get_max_rho(traces):
-    # Divide i+1th value by the ith value
-    rho = (traces.div(traces.shift().bfill()))
-    return rho.idxmax(), rho.max()
- 
+        return array(viral_loads) 

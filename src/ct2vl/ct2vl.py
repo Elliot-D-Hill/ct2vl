@@ -21,13 +21,9 @@ class CT2VL:
         self.preprocess_traces()
         self.get_max_replication_rate()
         self.calibrate()
-    
+
     def get_traces(self, traces):
-        options = {
-            str: read_csv,
-            DataFrame: lambda df: df,
-            ndarray: DataFrame
-        }
+        options = {str: read_csv, DataFrame: lambda df: df, ndarray: DataFrame}
         self.traces = options[type(traces)](traces)
 
     def preprocess_traces(self):
@@ -43,16 +39,17 @@ class CT2VL:
 
     def get_max_replication_rate(self):
         # Divide i+1th value by the ith value
-        replication_rate = (self.traces.div(self.traces.shift().bfill()))
-        self.max_replication_rate_cycle = replication_rate.idxmax().astype(int).to_numpy().reshape(-1, 1)
+        replication_rate = self.traces.div(self.traces.shift().bfill())
+        self.max_replication_rate_cycle = (
+            replication_rate.idxmax().astype(int).to_numpy().reshape(-1, 1)
+        )
         self.max_replication_rate = replication_rate.max().to_numpy().reshape(-1, 1)
 
     def calibrate(self):
         pipeline = make_pipeline(
-            PolynomialFeatures(),
-            LinearRegression(fit_intercept=False)
+            PolynomialFeatures(), LinearRegression(fit_intercept=False)
         )
-        cv = GridSearchCV(pipeline, {'polynomialfeatures__degree': [1, 2, 3]})
+        cv = GridSearchCV(pipeline, {"polynomialfeatures__degree": [1, 2, 3]})
         cv.fit(X=self.max_replication_rate_cycle, y=self.max_replication_rate)
         self.model = cv.best_estimator_
 
@@ -68,4 +65,4 @@ class CT2VL:
             log_viral_load = log(LoD) + integral_Ct_at_LoD - integral_Ct
             viral_load = exp(log_viral_load)
             viral_loads.append(viral_load)
-        return array(viral_loads) 
+        return array(viral_loads)

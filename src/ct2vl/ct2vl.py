@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from typing import Union
-from numpy import array, exp, log, ndarray
+from numpy import array, exp, log, ndarray, atleast_1d, mean
 from pandas import DataFrame, read_csv
 from scipy.integrate import quad
 from sklearn.linear_model import LinearRegression
@@ -12,6 +12,8 @@ from sklearn.preprocessing import PolynomialFeatures
 @dataclass
 class CT2VL:
     traces: Union[str, DataFrame, ndarray]
+    LoD: ndarray
+    Ct_at_LoD: ndarray
     max_replication_rate_cycle: array = field(init=False)
     max_replication_rate: array = field(init=False)
     model: LinearRegression = field(init=False)
@@ -20,6 +22,7 @@ class CT2VL:
         self.get_traces(self.traces)
         self.preprocess_traces()
         self.get_max_replication_rate()
+        self.LoD, self.Ct_at_LoD = atleast_1d(self.LoD, self.Ct_at_LoD)
         self.calibrate()
 
     def get_traces(self, traces):
@@ -56,13 +59,21 @@ class CT2VL:
     def log_replication_rate(self, Ct):
         return log(self.model.predict(array([[Ct]])))
 
-    def ct_to_viral_load(self, Ct, LoD, Ct_at_LoD):
-        Ct = array([Ct]).flatten()
-        viral_loads = []
-        for ct_i in Ct:
-            integral_Ct, _ = quad(self.log_replication_rate, 0, ct_i)
-            integral_Ct_at_LoD, _ = quad(self.log_replication_rate, 0, Ct_at_LoD)
-            log_viral_load = log(LoD) + integral_Ct_at_LoD - integral_Ct
-            viral_load = exp(log_viral_load)
-            viral_loads.append(viral_load)
-        return array(viral_loads)
+    def ct2vl(self, Ct, LoD, Ct_at_LoD):
+        integral_Ct, _ = quad(self.log_replication_rate, 0, Ct)
+        integral_Ct_at_LoD, _ = quad(self.log_replication_rate, 0, Ct_at_LoD)
+        viral_load = exp(log(LoD) + integral_Ct_at_LoD - integral_Ct)
+        return viral_load
+
+    def ct_to_viral_load(self, Ct):
+        return array(
+            [
+                mean(
+                    [
+                        self.ct2vl(ct_i, LoD_i, Ct_at_LoD_i)
+                        for LoD_i, Ct_at_LoD_i in zip(self.LoD, self.Ct_at_LoD)
+                    ]
+                )
+                for ct_i in atleast_1d(Ct)
+            ]
+        )

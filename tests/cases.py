@@ -50,15 +50,12 @@ ct_to_viral_load_output = array([100.0])
 configure_arguments_calibrate_input = [
     "calibrate",
     "test.tsv",
-    "-l",
     "100.0",
-    "-c",
     "37.83",
 ]
 configure_arguments_calibrate_output = Namespace(
     mode="calibrate",
     traces="test.tsv",
-    calibration_series=None,
     LoD=100.0,
     Ct_at_LoD=37.83,
 )
@@ -75,6 +72,8 @@ configure_arguments_convert_output = Namespace(
 
 main_convert_output = DataFrame(
     {
+        "LoD": 100.0,
+        "Ct_at_LoD": 37.83,
         "Ct": [37.83],
         "viral_load": [100.0],
         "log10_viral_load": [2.0],

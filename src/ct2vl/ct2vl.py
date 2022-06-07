@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from typing import Union
-from numpy import array, exp, log, ndarray, atleast_1d, mean
+from numpy import array, empty, exp, log, ndarray, atleast_1d, mean
 from pandas import DataFrame, read_csv
 from scipy.integrate import quad
 from sklearn.linear_model import LinearRegression
@@ -59,21 +59,11 @@ class CT2VL:
     def log_replication_rate(self, Ct):
         return log(self.model.predict(array([[Ct]])))
 
-    def ct2vl(self, Ct, LoD, Ct_at_LoD):
-        integral_Ct, _ = quad(self.log_replication_rate, 0, Ct)
-        integral_Ct_at_LoD, _ = quad(self.log_replication_rate, 0, Ct_at_LoD)
-        viral_load = exp(log(LoD) + integral_Ct_at_LoD - integral_Ct)
-        return viral_load
-
     def ct_to_viral_load(self, Ct):
-        return array(
-            [
-                mean(
-                    [
-                        self.ct2vl(ct_i, LoD_i, Ct_at_LoD_i)
-                        for LoD_i, Ct_at_LoD_i in zip(self.LoD, self.Ct_at_LoD)
-                    ]
-                )
-                for ct_i in atleast_1d(Ct)
-            ]
-        )
+        Ct = atleast_1d(Ct)
+        viral_loads = empty(Ct.shape)
+        for i, ct_i in enumerate(Ct):
+            integral_Ct, _ = quad(self.log_replication_rate, 0, ct_i)
+            integral_Ct_at_LoD, _ = quad(self.log_replication_rate, 0, self.Ct_at_LoD)
+            viral_loads[i] = exp(log(self.LoD) + integral_Ct_at_LoD - integral_Ct)
+        return viral_loads

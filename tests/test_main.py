@@ -39,4 +39,6 @@ def test_main_convert(tmp_path, monkeypatch, dummy_converter):
     with monkeypatch.context() as patched_context:
         patched_context.setattr("ct2vl.__main__.__file__", f"{tmp_path}/__main__.py")
         main()
+        print(read_csv(sys.argv[-1], sep="\t"))
+        print(cases.main_convert_output)
     assert allclose(read_csv(sys.argv[-1], sep="\t"), cases.main_convert_output)

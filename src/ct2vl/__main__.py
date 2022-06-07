@@ -14,14 +14,7 @@ def main():
     args = configure_arguments()
 
     if args.mode == "calibrate":
-        if args.calibration_series is not None:
-            df = read_csv(args.calibration_series)
-            LoD = df.iloc[:, 0]
-            Ct_at_LoD = df.iloc[:, 1]
-        else:
-            LoD = args.LoD
-            Ct_at_LoD = args.Ct_at_LoD
-        converter = CT2VL(args.traces, LoD, Ct_at_LoD)
+        converter = CT2VL(args.traces, args.LoD, args.Ct_at_LoD)
         with open(calibration_filepath, "wb") as f:
             dump(converter, f)
         print("Calibration complete.")
@@ -36,6 +29,8 @@ def main():
         log10_viral_load = log10(viral_load)
         formatted_results = DataFrame(
             {
+                "LoD": calibrated_converter.LoD,
+                "Ct_at_LoD": calibrated_converter.Ct_at_LoD,
                 "Ct": args.Ct,
                 "viral_load": viral_load,
                 "log10_viral_load": log10_viral_load,

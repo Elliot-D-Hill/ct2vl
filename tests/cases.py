@@ -47,19 +47,27 @@ main_calibrate_output = calibrate_output
 ct_to_viral_load_input = [37.83]
 ct_to_viral_load_output = array([100.0])
 
-configure_arguments_calibrate_input = ["calibrate", "test.tsv"]
-configure_arguments_calibrate_output = Namespace(mode="calibrate", infile="test.tsv")
+configure_arguments_calibrate_input = [
+    "calibrate",
+    "test.tsv",
+    "100.0",
+    "37.83",
+]
+configure_arguments_calibrate_output = Namespace(
+    mode="calibrate",
+    traces="test.tsv",
+    LoD=100.0,
+    Ct_at_LoD=37.83,
+)
 
 configure_arguments_convert_input = [
     "convert",
-    "100.0",
-    "37.83",
     "37.83",
     "--outfile",
     "test.tsv",
 ]
 configure_arguments_convert_output = Namespace(
-    mode="convert", Ct=[37.83], LoD=100.0, Ct_at_LoD=37.83, outfile="test.tsv"
+    mode="convert", Ct=[37.83], outfile="test.tsv"
 )
 
 main_convert_output = DataFrame(

@@ -1,6 +1,6 @@
 from pickle import dump, load
-from numpy import column_stack, log10
-from pandas import DataFrame
+from numpy import log10
+from pandas import DataFrame, read_csv
 from ct2vl.cli import configure_arguments
 from ct2vl.ct2vl import CT2VL
 from pathlib import Path
@@ -12,8 +12,9 @@ def main():
     filename = Path("calibration.pkl")
     calibration_filepath = module_path / filename
     args = configure_arguments()
+
     if args.mode == "calibrate":
-        converter = CT2VL(args.infile)
+        converter = CT2VL(args.traces, args.LoD, args.Ct_at_LoD)
         with open(calibration_filepath, "wb") as f:
             dump(converter, f)
         print("Calibration complete.")
@@ -24,14 +25,12 @@ def main():
             )
         with open(calibration_filepath, "rb") as f:
             calibrated_converter = load(f)
-        viral_load = calibrated_converter.ct_to_viral_load(
-            args.Ct, args.LoD, args.Ct_at_LoD
-        )
+        viral_load = calibrated_converter.ct_to_viral_load(args.Ct)
         log10_viral_load = log10(viral_load)
         formatted_results = DataFrame(
             {
-                "LoD": args.LoD,
-                "Ct_at_LoD": args.Ct_at_LoD,
+                "LoD": calibrated_converter.LoD,
+                "Ct_at_LoD": calibrated_converter.Ct_at_LoD,
                 "Ct": args.Ct,
                 "viral_load": viral_load,
                 "log10_viral_load": log10_viral_load,

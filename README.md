@@ -217,7 +217,6 @@ For `calibrate` mode, `traces` is a csv file where each row corresponds to a PCR
       <td>...</td>
       <td>...</td>
       <td>...</td>
-      <td>...</td>
     </tr>
     <tr>
       <th>16</th>

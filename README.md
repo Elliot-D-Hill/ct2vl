@@ -7,11 +7,11 @@ A command line tool and python package to convert SARS-CoV-2 PCR C<sub>t</sub> v
 
 To calibrate ct2vl run
 
-    python3 -m ct2vl calibrate <LoD> <Ct_at_LoD> <infile>
+    python3 -m ct2vl calibrate <traces> <LoD> <Ct_at_LoD>
 
 For example
 
-    python3 -m ct2vl calibrate 100.0 37.96 positive_traces_with_ct_values.csv
+    python3 -m ct2vl calibrate example/path/traces.csv 100.0 37.96
 
 Once ct2vl has been calibrated, C<sub>t</sub> values can be converted to viral loads with
 
@@ -41,14 +41,14 @@ viral_loads = converter.ct_to_viral_load(ct_values)
 The command line tool has two modes `calibrate` and `convert`.
 
 * `mode`: `calibrate` uses positive PCR traces and their corresponding C<sub>t</sub> values to calibrate ct2vl for a given machine
-   1. `LoD`: Limit of detection (LoD): copies of SARS-CoV-2 viral genomes/mL (copies/mL; viral load at the LoD)
-   2. `Ct_at_LoD`: C<sub>t</sub> value at the limit of detection (LoD)
-   3. `infile`: Filepath to a csv file containing C<sub>t</sub> values and PCR reaction traces
+   1. `traces`: Filepath to a csv file containing C<sub>t</sub> values and PCR reaction traces
+   2. `LoD`: Limit of detection (LoD): copies of SARS-CoV-2 viral genomes/mL (copies/mL; viral load at the LoD)
+   3. `Ct_at_LoD`: C<sub>t</sub> value at the limit of detection (LoD)
 * `mode`: `convert` calculates the viral loads for given C<sub>t</sub> values
     1. `Ct`: A list of C<sub>t</sub> values that will be converted to viral loads
     2. `--outfile`: An optional filepath to save the results to
 
-For `calibrate` mode, `infile` is a csv file where each row corresponds to a run and the first column contains the Ct values for each run and the remaining columns contain the values at each cycle (example below).
+For `calibrate` mode, `traces` is a csv file where each row corresponds to a run and the first column contains the Ct values for each run and the remaining columns contain the values at each cycle (example below).
 
 <div>
 <table border="1" class="dataframe">
@@ -350,72 +350,5 @@ For `calibrate` mode, `infile` is a csv file where each row corresponds to a run
 
 ## Example output
 
-<div>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>ct_value</th>
-      <th>viral_load</th>
-      <th>lower_95_ci</th>
-      <th>upper_95_ci</th>
-      <th>log10_viral_load</th>
-      <th>log10_lower_95_ci</th>
-      <th>log10_upper_95_ci</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>23.1</td>
-      <td>777543.433255</td>
-      <td>580181.755636</td>
-      <td>906810.381296</td>
-      <td>5.890725</td>
-      <td>5.763564</td>
-      <td>5.957516</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>31.8</td>
-      <td>4100.957983</td>
-      <td>3637.233018</td>
-      <td>4365.686911</td>
-      <td>3.612885</td>
-      <td>3.560771</td>
-      <td>3.640053</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>28.4</td>
-      <td>31848.519825</td>
-      <td>26414.830590</td>
-      <td>35121.013807</td>
-      <td>4.503089</td>
-      <td>4.421848</td>
-      <td>4.545567</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>34.0</td>
-      <td>1088.582988</td>
-      <td>1007.991378</td>
-      <td>1133.030544</td>
-      <td>3.036862</td>
-      <td>3.003457</td>
-      <td>3.054242</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>30.2</td>
-      <td>10759.870164</td>
-      <td>9247.366373</td>
-      <td>11645.316301</td>
-      <td>4.031807</td>
-      <td>3.966018</td>
-      <td>4.066151</td>
-    </tr>
-  </tbody>
-</table>
-</div>
+FIXME
 

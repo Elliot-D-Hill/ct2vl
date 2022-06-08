@@ -48,7 +48,7 @@ The command line tool has two modes `calibrate` and `convert`.
     1. `Ct`: A list of C<sub>t</sub> values that will be converted to viral loads
     2. `--outfile`: An optional filepath to save the results to
 
-For `calibrate` mode, `traces` is a csv file where each row corresponds to a run and the first column contains the Ct values for each run and the remaining columns contain the values at each cycle (example below).
+For `calibrate` mode, `traces` is a csv file where each row corresponds to a PCR reaction curve and the columns contain the values at each cycle (example below).
 
 <div>
 <table border="1" class="dataframe">
@@ -350,5 +350,11 @@ For `calibrate` mode, `traces` is a csv file where each row corresponds to a run
 
 ## Example output
 
-FIXME
+|    |   LoD |   Ct_at_LoD |    Ct |   viral_load |   log10_viral_load |
+|---:|------:|------------:|------:|-------------:|-------------------:|
+|  0 |   100 |       37.83 | 14.73 |  3.3277e+08  |            8.52214 |
+|  1 |   100 |       37.83 | 20.27 |  7.98283e+06 |            6.90216 |
+|  2 |   100 |       37.83 | 18.21 |  3.13511e+07 |            7.49625 |
+|  3 |   100 |       37.83 | 18.05 |  3.48959e+07 |            7.54277 |
+|  4 |   100 |       37.83 | 15.53 |  1.92109e+08 |            8.28355 |
 

@@ -50,12 +50,13 @@ The command line tool has two modes `calibrate` and `convert`.
 
 For `calibrate` mode, `traces` is a csv file where each row corresponds to a PCR reaction curve and the columns contain the values at each cycle (example below).
 
+## Example `traces` csv file
+
 <div>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
       <th></th>
-      <th>ct_value</th>
       <th>0</th>
       <th>1</th>
       <th>2</th>
@@ -81,7 +82,6 @@ For `calibrate` mode, `traces` is a csv file where each row corresponds to a PCR
   <tbody>
     <tr>
       <th>0</th>
-      <td>27.68</td>
       <td>0.000000</td>
       <td>0.000000</td>
       <td>0.000000</td>
@@ -105,7 +105,6 @@ For `calibrate` mode, `traces` is a csv file where each row corresponds to a PCR
     </tr>
     <tr>
       <th>1</th>
-      <td>33.71</td>
       <td>0.000000</td>
       <td>0.000000</td>
       <td>0.000000</td>
@@ -129,7 +128,6 @@ For `calibrate` mode, `traces` is a csv file where each row corresponds to a PCR
     </tr>
     <tr>
       <th>2</th>
-      <td>13.24</td>
       <td>0.008563</td>
       <td>0.077690</td>
       <td>0.112795</td>
@@ -153,7 +151,6 @@ For `calibrate` mode, `traces` is a csv file where each row corresponds to a PCR
     </tr>
     <tr>
       <th>3</th>
-      <td>22.50</td>
       <td>0.000000</td>
       <td>0.000000</td>
       <td>0.043038</td>
@@ -177,7 +174,6 @@ For `calibrate` mode, `traces` is a csv file where each row corresponds to a PCR
     </tr>
     <tr>
       <th>4</th>
-      <td>23.08</td>
       <td>0.000000</td>
       <td>0.000000</td>
       <td>0.000000</td>
@@ -225,7 +221,6 @@ For `calibrate` mode, `traces` is a csv file where each row corresponds to a PCR
     </tr>
     <tr>
       <th>16</th>
-      <td>21.53</td>
       <td>0.000000</td>
       <td>0.000000</td>
       <td>0.050974</td>
@@ -249,7 +244,6 @@ For `calibrate` mode, `traces` is a csv file where each row corresponds to a PCR
     </tr>
     <tr>
       <th>17</th>
-      <td>23.39</td>
       <td>0.000000</td>
       <td>0.000000</td>
       <td>0.000000</td>
@@ -273,7 +267,6 @@ For `calibrate` mode, `traces` is a csv file where each row corresponds to a PCR
     </tr>
     <tr>
       <th>18</th>
-      <td>28.46</td>
       <td>0.000000</td>
       <td>0.000000</td>
       <td>0.000000</td>
@@ -297,7 +290,6 @@ For `calibrate` mode, `traces` is a csv file where each row corresponds to a PCR
     </tr>
     <tr>
       <th>19</th>
-      <td>27.86</td>
       <td>0.443534</td>
       <td>0.443534</td>
       <td>0.443534</td>
@@ -321,7 +313,6 @@ For `calibrate` mode, `traces` is a csv file where each row corresponds to a PCR
     </tr>
     <tr>
       <th>20</th>
-      <td>15.61</td>
       <td>0.000000</td>
       <td>0.060721</td>
       <td>0.060721</td>
@@ -352,9 +343,9 @@ For `calibrate` mode, `traces` is a csv file where each row corresponds to a PCR
 
 |    |   LoD |   Ct_at_LoD |    Ct |   viral_load |   log10_viral_load |
 |---:|------:|------------:|------:|-------------:|-------------------:|
-|  0 |   100 |       37.83 | 14.73 |  3.3277e+08  |            8.52214 |
-|  1 |   100 |       37.83 | 20.27 |  7.98283e+06 |            6.90216 |
-|  2 |   100 |       37.83 | 18.21 |  3.13511e+07 |            7.49625 |
-|  3 |   100 |       37.83 | 18.05 |  3.48959e+07 |            7.54277 |
-|  4 |   100 |       37.83 | 15.53 |  1.92109e+08 |            8.28355 |
+|  1 |   100 |       37.83 | 14.73 |  3.3277e+08  |            8.52214 |
+|  2 |   100 |       37.83 | 20.27 |  7.98283e+06 |            6.90216 |
+|  3 |   100 |       37.83 | 18.21 |  3.13511e+07 |            7.49625 |
+|  4 |   100 |       37.83 | 18.05 |  3.48959e+07 |            7.54277 |
+|  5 |   100 |       37.83 | 15.53 |  1.92109e+08 |            8.28355 |
 

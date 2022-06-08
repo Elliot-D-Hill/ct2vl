@@ -31,12 +31,9 @@ Output can be saved to a file by providing a filepath to the optional flag `--ou
 ### Python package
 ```python
 from ct2vl.ct2vl import CT2VL
-
-traces_filepath = 'Data/positive_traces_with_ct_values.csv'
-converter = CT2VL(LoD=100.0, Ct_at_LoD=37.96)
-converter.calibrate(traces_filepath)
+converter = CT2VL(traces="traces.csv", LoD=100.0, Ct_at_LoD=37.96)
 ct_values = [23.1, 31.8, 28.4, 34.0, 30.2]
-viral_load = converter.convert(ct_values)
+viral_loads = converter.ct_to_viral_load(ct_values)
 ```
 
 ## Input

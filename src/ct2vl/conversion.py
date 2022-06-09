@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from typing import Union
-from numpy import array, empty, exp, log, ndarray, atleast_1d, mean
+from numpy import array, empty, exp, log, ndarray, atleast_1d
 from pandas import DataFrame, read_csv
 from scipy.integrate import quad
 from sklearn.linear_model import LinearRegression
@@ -10,7 +10,7 @@ from sklearn.preprocessing import PolynomialFeatures
 
 
 @dataclass
-class CT2VL:
+class Converter:
     traces: Union[str, DataFrame, ndarray]
     LoD: ndarray
     Ct_at_LoD: ndarray
@@ -22,7 +22,6 @@ class CT2VL:
         self.get_traces(self.traces)
         self.preprocess_traces()
         self.get_max_replication_rate()
-        self.LoD, self.Ct_at_LoD = atleast_1d(self.LoD, self.Ct_at_LoD)
         self.calibrate()
 
     def get_traces(self, traces):

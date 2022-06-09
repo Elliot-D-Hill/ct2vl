@@ -1,6 +1,6 @@
 from numpy import allclose
 from pytest import fixture
-from ct2vl.ct2vl import CT2VL
+from ct2vl.conversion import Converter
 from tests import cases
 
 LOD = 100.0
@@ -10,7 +10,7 @@ CT_AT_LOD = 37.83
 @fixture
 def dummy_converter(tmp_path):
     cases.main_calibrate_input.to_csv(f"{tmp_path}/infile", index=False)
-    return CT2VL(traces=f"{tmp_path}/infile", LoD=LOD, Ct_at_LoD=CT_AT_LOD)
+    return Converter(traces=f"{tmp_path}/infile", LoD=LOD, Ct_at_LoD=CT_AT_LOD)
 
 
 def test_calibrate(dummy_converter):

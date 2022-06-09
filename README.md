@@ -30,8 +30,8 @@ Output can be saved to a file by providing a filepath to the optional flag `--ou
 
 ### Python package
 ```python
-from ct2vl.ct2vl import CT2VL
-converter = CT2VL(traces="traces.csv", LoD=100.0, Ct_at_LoD=37.96)
+from ct2vl.conversion import Converter
+converter = Converter(traces="traces.csv", LoD=100.0, Ct_at_LoD=37.96)
 ct_values = [23.1, 31.8, 28.4, 34.0, 30.2]
 viral_loads = converter.ct_to_viral_load(ct_values)
 ```

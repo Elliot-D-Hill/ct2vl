@@ -2,7 +2,7 @@ from pickle import dump, load
 from numpy import log10
 from pandas import DataFrame, read_csv
 from ct2vl.cli import configure_arguments
-from ct2vl.ct2vl import CT2VL
+from ct2vl.conversion import Converter
 from pathlib import Path
 from os.path import abspath, dirname
 
@@ -14,7 +14,9 @@ def main():
     args = configure_arguments()
 
     if args.mode == "calibrate":
-        converter = CT2VL(args.traces, args.LoD, args.Ct_at_LoD)
+        print("LoD", args.LoD, "Ct_at_LoD", args.Ct_at_LoD)
+        converter = Converter(args.traces, args.LoD, args.Ct_at_LoD)
+        print(converter.ct_to_viral_load(21.1))
         with open(calibration_filepath, "wb") as f:
             dump(converter, f)
         print("Calibration complete.")
@@ -36,6 +38,7 @@ def main():
                 "log10_viral_load": log10_viral_load,
             }
         )
+        formatted_results.index += 1
         print(formatted_results)
         if args.outfile:
             formatted_results.to_csv(

@@ -1,7 +1,15 @@
 # ct2vl: C<sub>t</sub> values to viral load
-A command line tool and python package to convert SARS-CoV-2 PCR C<sub>t</sub> values to viral load.
+A python package and command line tool to convert SARS-CoV-2 PCR C<sub>t</sub> values to viral load.
 
 ## Usage
+
+### Python package
+```python
+from ct2vl.conversion import Converter
+converter = Converter(traces="traces.csv", LoD=100.0, Ct_at_LoD=37.96)
+ct_values = [23.1, 31.8, 28.4, 34.0, 30.2]
+viral_loads = converter.ct_to_viral_load(ct_values)
+```
 
 ### Command line tool
 
@@ -27,14 +35,6 @@ or
 Output can be saved to a file by providing a filepath to the optional flag `--output`
 
     python3 -m ct2vl convert 23.1 --output example/path//viral_loads.tsv
-
-### Python package
-```python
-from ct2vl.conversion import Converter
-converter = Converter(traces="traces.csv", LoD=100.0, Ct_at_LoD=37.96)
-ct_values = [23.1, 31.8, 28.4, 34.0, 30.2]
-viral_loads = converter.ct_to_viral_load(ct_values)
-```
 
 ## Input
 
@@ -340,11 +340,11 @@ For `calibrate` mode, `traces` is a csv file where each row corresponds to a PCR
 
 ## Example command line output
 
-|    |   LoD |   Ct_at_LoD |    Ct |   viral_load |   log10_viral_load |
-|---:|------:|------------:|------:|-------------:|-------------------:|
-|  1 |   100 |       37.83 | 14.73 |  3.3277e+08  |            8.52214 |
-|  2 |   100 |       37.83 | 20.27 |  7.98283e+06 |            6.90216 |
-|  3 |   100 |       37.83 | 18.21 |  3.13511e+07 |            7.49625 |
-|  4 |   100 |       37.83 | 18.05 |  3.48959e+07 |            7.54277 |
-|  5 |   100 |       37.83 | 15.53 |  1.92109e+08 |            8.28355 |
+|      |  LoD | Ct_at_LoD |    Ct |  viral_load | log10_viral_load |
+| ---: | ---: | --------: | ----: | ----------: | ---------------: |
+|    1 |  100 |     37.83 | 14.73 |  3.3277e+08 |          8.52214 |
+|    2 |  100 |     37.83 | 20.27 | 7.98283e+06 |          6.90216 |
+|    3 |  100 |     37.83 | 18.21 | 3.13511e+07 |          7.49625 |
+|    4 |  100 |     37.83 | 18.05 | 3.48959e+07 |          7.54277 |
+|    5 |  100 |     37.83 | 15.53 | 1.92109e+08 |          8.28355 |
 

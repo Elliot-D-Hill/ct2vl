@@ -26,7 +26,7 @@ or
 
 Output can be saved to a file by providing a filepath to the optional flag `--output`
 
-    python3 -m ct2vl convert 23.1 --output Results/viral_loads.tsv
+    python3 -m ct2vl convert 23.1 --output example/path//viral_loads.tsv
 
 ### Python package
 ```python
@@ -41,14 +41,14 @@ viral_loads = converter.ct_to_viral_load(ct_values)
 The command line tool has two modes `calibrate` and `convert`.
 
 * `mode`: `calibrate` uses positive PCR traces and their corresponding C<sub>t</sub> values to calibrate ct2vl for a given machine
-   1. `traces`: Filepath to a csv file containing C<sub>t</sub> values and PCR reaction traces
+   1. `traces`: Filepath to a csv file containing PCR reaction traces
    2. `LoD`: Limit of detection (LoD): copies of SARS-CoV-2 viral genomes/mL (copies/mL; viral load at the LoD)
    3. `Ct_at_LoD`: C<sub>t</sub> value at the limit of detection (LoD)
 * `mode`: `convert` calculates the viral loads for given C<sub>t</sub> values
     1. `Ct`: A list of C<sub>t</sub> values that will be converted to viral loads
     2. `--outfile`: An optional filepath to save the results to
 
-For `calibrate` mode, `traces` is a csv file where each row corresponds to a PCR reaction curve and the columns contain the values at each cycle (example below).
+For `calibrate` mode, `traces` is a csv file where each row corresponds to a PCR reaction curve and each column is a cycle in the reaction (example below).
 
 ## Example `traces` csv file
 

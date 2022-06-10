@@ -85,7 +85,7 @@ class Converter:
         self.model = cv.best_estimator_
 
     def log_replication_rate(self, Ct):
-        """Predicts the replication rate for a give Ct value using a calibrated model"""
+        """Predicts the log replication rate for a give Ct value using a model fit"""
         return log(self.model.predict(array([[Ct]])))
 
     def ct_to_viral_load(self, Ct):

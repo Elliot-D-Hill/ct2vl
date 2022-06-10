@@ -338,7 +338,7 @@ For `calibrate` mode, `traces` is a csv file where each row corresponds to a PCR
 </div>
 
 
-## Example output
+## Example command line output
 
 |    |   LoD |   Ct_at_LoD |    Ct |   viral_load |   log10_viral_load |
 |---:|------:|------------:|------:|-------------:|-------------------:|

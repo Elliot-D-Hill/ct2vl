@@ -1,5 +1,5 @@
-# ct2vl: C<sub>t</sub> values to viral load
-A python package and command line tool to convert SARS-CoV-2 PCR C<sub>t</sub> values to viral load.
+# ct2vl: C<sub>t</sub> values to viral loads
+A python package and command line tool to convert SARS-CoV-2 PCR C<sub>t</sub> values to viral loads.
 
 ## Installation
 

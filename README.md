@@ -1,5 +1,12 @@
-# ct2vl: C<sub>t</sub> values to viral load
-A python package and command line tool to convert SARS-CoV-2 PCR C<sub>t</sub> values to viral load.
+# ct2vl: C<sub>t</sub> values to viral loads
+A python package and command line tool to convert SARS-CoV-2 PCR C<sub>t</sub> values to viral loads.
+
+## Installation
+
+Assuming python and pip are installed, at the command line, run
+
+    pip install ct2vl
+
 
 ## Usage
 
@@ -349,3 +356,17 @@ For `calibrate` mode, `traces` is a csv file where each row corresponds to a PCR
 |    4 |  100 |     37.83 | 18.05 | 3.48959e+07 |          7.54277 |
 |    5 |  100 |     37.83 | 15.53 | 1.92109e+08 |          8.28355 |
 
+## Fine details
+*If you use conda:*
+This package is currently only available from PyPI; however, using pip with conda is not really recommended,
+and `conda skeleton` requires a setup.py (the deprecated way of doing things). 
+This recipe for installing in a conda environment *seems* to work:
+```
+conda install -c conda-forge grayskull
+grayskull pypi ct2vl
+cd ct2vl
+conda build .
+cd ..
+conda install --use-local ct2vl
+```
+That being said, if you have suggestions or feedback on how to support conda installation, let us know.

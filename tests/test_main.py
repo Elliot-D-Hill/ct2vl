@@ -5,7 +5,7 @@ from pandas import read_csv
 from pytest import raises
 from tests import cases
 from ct2vl.__main__ import main
-from tests.test_ct2vl import dummy_converter
+from tests.test_conversion import dummy_converter
 
 
 def test_main_calibrate(tmp_path, monkeypatch):

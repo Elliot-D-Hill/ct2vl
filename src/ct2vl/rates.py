@@ -4,15 +4,10 @@ from pandas import DataFrame, read_csv
 
 class IReplicationRateSupplier(ABC):
     """ Abstract base class for classes that can supply the max_replication_rate
-         and max_replication_rate_cycle arrays. """
-    
-    @abstractmethod
-    def get_max_replication_rate(self):
-        pass
-
-    @abstractmethod
-    def get_max_replication_rate_cycle(self):
-        pass
+         and max_replication_rate_cycle arrays. 
+         Any subclass must have member variables named max_replication_rate
+         and max_replication_rate_cycle (or corresponding __get__ methods),
+         which return ndarrays."""
 
 class ReplicationRates(IReplicationRateSupplier):
     def __init__(self, data):
@@ -29,12 +24,6 @@ class ReplicationRates(IReplicationRateSupplier):
         data = options[type(data)](data)
         self.max_replication_rate = data["max_replication_rate"].to_numpy().reshape(-1, 1)
         self.max_replication_rate_cycle = data["max_replication_rate_cycle"].to_numpy().reshape(-1, 1)
-
-    def get_max_replication_rate(self):
-        return self.max_replication_rate
-
-    def get_max_replication_rate_cycle(self):
-        return self.max_replication_rate_cycle
 
 class ReplicationRateFromTraces(IReplicationRateSupplier):
     def __init__(self, traces):
@@ -79,8 +68,3 @@ class ReplicationRateFromTraces(IReplicationRateSupplier):
         )
         self.max_replication_rate = replication_rate.max().to_numpy().reshape(-1, 1)
 
-    def get_max_replication_rate(self):
-        return self.max_replication_rate
-
-    def get_max_replication_rate_cycle(self):
-        return self.max_replication_rate_cycle

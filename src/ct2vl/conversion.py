@@ -44,8 +44,8 @@ class Converter:
             PolynomialFeatures(), LinearRegression(fit_intercept=False)
         )
         cv = GridSearchCV(pipeline, {"polynomialfeatures__degree": [1, 2, 3]})
-        cv.fit(X=self.replication_rate_supplier.get_max_replication_rate_cycle(), 
-               y=self.replication_rate_supplier.get_max_replication_rate())
+        cv.fit(X=self.replication_rate_supplier.max_replication_rate_cycle, 
+               y=self.replication_rate_supplier.max_replication_rate)
         self.model = cv.best_estimator_
 
     def log_replication_rate(self, Ct):

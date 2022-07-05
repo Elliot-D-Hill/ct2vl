@@ -2,28 +2,39 @@ from abc import ABC, abstractmethod
 from numpy import ndarray
 from pandas import DataFrame, read_csv
 
+
 class IReplicationRateSupplier(ABC):
-    """ Abstract base class for classes that can supply the max_replication_rate
-         and max_replication_rate_cycle arrays. 
-         Any subclass must have member variables named max_replication_rate
-         and max_replication_rate_cycle (or corresponding __get__ methods),
-         which return ndarrays."""
+    """Abstract base class for classes that can supply the max_replication_rate
+    and max_replication_rate_cycle arrays.
+    Any subclass must have member variables named max_replication_rate
+    and max_replication_rate_cycle (or corresponding __get__ methods),
+    which return ndarrays."""
+
 
 class ReplicationRates(IReplicationRateSupplier):
     def __init__(self, data):
-        """Converts input to two arrays, giving the 
-           max_replication_rate and max_replication_rate_cycle values
-           
-           Parameters
-           __________
-           data: str, pandas.DataFrame, or dictionary
-              A table whose columns give max_replication_rate and max_replication_rate_cycle
-              Note that the keys or column names must be exactly these strings.
+        """Converts input to two arrays, giving the
+        max_replication_rate and max_replication_rate_cycle values
+
+        Parameters
+        __________
+        data: str, pandas.DataFrame, or dictionary
+           A table whose columns give max_replication_rate and max_replication_rate_cycle
+           Note that the keys or column names must be exactly these strings.
         """
-        options = {str: read_csv, DataFrame: lambda df: df, dict: lambda d: DataFrame.from_dict(d) }
+        options = {
+            str: read_csv,
+            DataFrame: lambda df: df,
+            dict: lambda d: DataFrame.from_dict(d),
+        }
         data = options[type(data)](data)
-        self.max_replication_rate = data["max_replication_rate"].to_numpy().reshape(-1, 1)
-        self.max_replication_rate_cycle = data["max_replication_rate_cycle"].to_numpy().reshape(-1, 1)
+        self.max_replication_rate = (
+            data["max_replication_rate"].to_numpy().reshape(-1, 1)
+        )
+        self.max_replication_rate_cycle = (
+            data["max_replication_rate_cycle"].to_numpy().reshape(-1, 1)
+        )
+
 
 class ReplicationRateFromTraces(IReplicationRateSupplier):
     def __init__(self, traces):
@@ -67,4 +78,3 @@ class ReplicationRateFromTraces(IReplicationRateSupplier):
             replication_rate.idxmax().astype(int).to_numpy().reshape(-1, 1)
         )
         self.max_replication_rate = replication_rate.max().to_numpy().reshape(-1, 1)
-

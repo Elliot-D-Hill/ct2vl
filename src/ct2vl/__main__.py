@@ -15,7 +15,7 @@ def main():
 
     if args.mode == "calibrate":
         print("LoD", args.LoD, "Ct_at_LoD", args.Ct_at_LoD)
-        converter = Converter(args.traces, args.LoD, args.Ct_at_LoD)
+        converter = Converter(args.LoD, args.Ct_at_LoD, traces=args.traces)
         print(converter.ct_to_viral_load(21.1))
         with open(calibration_filepath, "wb") as f:
             dump(converter, f)

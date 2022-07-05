@@ -2,10 +2,11 @@ from abc import ABC, abstractmethod
 from numpy import ndarray
 from pandas import DataFrame, read_csv
 
+
 class IReplicationRateSupplier(ABC):
-    """ Abstract base class for classes that can supply the max_replication_rate
-         and max_replication_rate_cycle arrays. """
-    
+    """Abstract base class for classes that can supply the max_replication_rate
+    and max_replication_rate_cycle arrays."""
+
     @abstractmethod
     def get_max_replication_rate(self):
         pass
@@ -13,6 +14,7 @@ class IReplicationRateSupplier(ABC):
     @abstractmethod
     def get_max_replication_rate_cycle(self):
         pass
+
 
 class ReplicationRates(IReplicationRateSupplier):
     def get_max_replication_rate(self):
@@ -20,6 +22,7 @@ class ReplicationRates(IReplicationRateSupplier):
 
     def get_max_replication_rate_cycle(self):
         raise Exception("Implement this")
+
 
 class ReplicationRateFromTraces(IReplicationRateSupplier):
     def __init__(self, traces):

@@ -15,11 +15,26 @@ class IReplicationRateSupplier(ABC):
         pass
 
 class ReplicationRates(IReplicationRateSupplier):
+    def __init__(self, data):
+        """Converts input to two arrays, giving the 
+           max_replication_rate and max_replication_rate_cycle values
+           
+           Parameters
+           __________
+           data: str, pandas.DataFrame, or dictionary
+              A table whose columns give max_replication_rate and max_replication_rate_cycle
+              Note that the keys or column names must be exactly these strings.
+        """
+        options = {str: read_csv, DataFrame: lambda df: df, dict: lambda d: DataFrame.from_dict(d) }
+        data = options[type(data)](data)
+        self.max_replication_rate = data["max_replication_rate"].to_numpy().reshape(-1, 1)
+        self.max_replication_rate_cycle = data["max_replication_rate_cycle"].to_numpy().reshape(-1, 1)
+
     def get_max_replication_rate(self):
-        raise Exception("Implement this")
+        return self.max_replication_rate
 
     def get_max_replication_rate_cycle(self):
-        raise Exception("Implement this")
+        return self.max_replication_rate_cycle
 
 class ReplicationRateFromTraces(IReplicationRateSupplier):
     def __init__(self, traces):

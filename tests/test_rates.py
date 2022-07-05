@@ -17,9 +17,9 @@ def test_preprocess_traces(dummy_rate_calc):
     assert allclose(dummy_rate_calc.traces, cases.preprocess_traces_output)
 
 
-def test_get_max_replication_rate(dummy_rate_calc):
+def test_calc_max_replication_rate(dummy_rate_calc):
     dummy_rate_calc.traces = cases.get_max_replication_rate_input
-    dummy_rate_calc.get_max_replication_rate()
+    dummy_rate_calc.calc_max_replication_rate()
     assert allclose(
         dummy_rate_calc.max_replication_rate_cycle,
         cases.get_max_replication_rate_output[0],

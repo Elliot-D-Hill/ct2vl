@@ -6,17 +6,18 @@ from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import PolynomialFeatures
 from ct2vl.rates import make_rates
 
+
 class Converter:
     """Uses PCR reaction curves to calibrate a model which converts Ct values to viral loads
 
     Parameters
     ----------
     traces: str, pandas.DataFrame, numpy.ndarray, or dict
-        More commonly, a table where each row corresponds to a PCR reaction curve and 
+        More commonly, a table where each row corresponds to a PCR reaction curve and
         each column is a cycle in the reaction.
-        (OR, if this contains columns named max_replication_rate and max_replication_rate_cycle, 
-        these columns are parallel arrays where for trace[j], the maximum replication rate was 
-        max_replication_rate[j] and that rate was observed at cycle max_replication_rate_cycle[j]. 
+        (OR, if this contains columns named max_replication_rate and max_replication_rate_cycle,
+        these columns are parallel arrays where for trace[j], the maximum replication rate was
+        max_replication_rate[j] and that rate was observed at cycle max_replication_rate_cycle[j].
         In the unlikely case that this is the type of input data you have.)
     LoD: float
         Limit of detection (LoD): copies of SARS-CoV-2 viral genomes/mL (copies/mL; viral load at the LoD)

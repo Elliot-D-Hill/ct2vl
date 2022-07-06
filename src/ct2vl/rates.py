@@ -2,16 +2,17 @@ from abc import ABC
 from numpy import ndarray
 from pandas import DataFrame, read_csv
 
+
 def make_rates(data):
     """Instantiates a concrete subclass of IReplicationRateSupplier.
 
     Parameters
     ----------
     data: Something that can be converted into a DataFrame.
-       The DataFrame will either contain arrays for 
+       The DataFrame will either contain arrays for
        max_replication_rate and max_replication_rate_cycle,
        or will be the data from a traces file.
-       A trace file shall contain a table where each row corresponds 
+       A trace file shall contain a table where each row corresponds
        to a PCR reaction curve and
        each column is a cycle in the reaction.
     """
@@ -20,7 +21,7 @@ def make_rates(data):
         DataFrame: lambda df: df,
         dict: lambda d: DataFrame.from_dict(d),
         ndarray: DataFrame,
-        }
+    }
     data = options[type(data)](data)
     if "max_replication_rate" in data:
         return ReplicationRates(data)
@@ -44,7 +45,7 @@ class ReplicationRates(IReplicationRateSupplier):
         Parameters
         __________
         data: pandas.DataFrame
-           A table whose columns include max_replication_rate 
+           A table whose columns include max_replication_rate
            and max_replication_rate_cycle
            Note that the keys or column names must be exactly these strings.
         """

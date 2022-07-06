@@ -17,6 +17,7 @@ converter = Converter(traces="traces.csv", LoD=100.0, Ct_at_LoD=37.96)
 ct_values = [23.1, 31.8, 28.4, 34.0, 30.2]
 viral_loads = converter.ct_to_viral_load(ct_values)
 ```
+
 The `traces` argument of `Converter` can also accept a pandas DataFrame or numpy ndarray.
 
 ### Command line tool
@@ -42,7 +43,7 @@ or
 
 Output can be saved to a file by providing a filepath to the optional flag `--output`
 
-    python3 -m ct2vl convert 23.1 --output example/path//viral_loads.tsv
+    python3 -m ct2vl convert 23.1 --output example/path/viral_loads.tsv
 
 ## Input
 

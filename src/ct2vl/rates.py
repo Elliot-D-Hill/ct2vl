@@ -2,6 +2,31 @@ from abc import ABC
 from numpy import ndarray
 from pandas import DataFrame, read_csv
 
+def make_rates(data):
+    """Instantiates a concrete subclass of IReplicationRateSupplier.
+
+    Parameters
+    ----------
+    data: Something that can be converted into a DataFrame.
+       The DataFrame will either contain arrays for 
+       max_replication_rate and max_replication_rate_cycle,
+       or will be the data from a traces file.
+       A trace file shall contain a table where each row corresponds 
+       to a PCR reaction curve and
+       each column is a cycle in the reaction.
+    """
+    options = {
+        str: read_csv,
+        DataFrame: lambda df: df,
+        dict: lambda d: DataFrame.from_dict(d),
+        ndarray: DataFrame,
+        }
+    data = options[type(data)](data)
+    if "max_replication_rate" in data:
+        return ReplicationRates(data)
+    else:
+        return ReplicationRateFromTraces(data)
+
 
 class IReplicationRateSupplier(ABC):
     """Abstract base class for classes that can supply the max_replication_rate
@@ -18,16 +43,11 @@ class ReplicationRates(IReplicationRateSupplier):
 
         Parameters
         __________
-        data: str, pandas.DataFrame, or dictionary
-           A table whose columns give max_replication_rate and max_replication_rate_cycle
+        data: pandas.DataFrame
+           A table whose columns include max_replication_rate 
+           and max_replication_rate_cycle
            Note that the keys or column names must be exactly these strings.
         """
-        options = {
-            str: read_csv,
-            DataFrame: lambda df: df,
-            dict: lambda d: DataFrame.from_dict(d),
-        }
-        data = options[type(data)](data)
         self.max_replication_rate = (
             data["max_replication_rate"].to_numpy().reshape(-1, 1)
         )
@@ -38,21 +58,9 @@ class ReplicationRates(IReplicationRateSupplier):
 
 class ReplicationRateFromTraces(IReplicationRateSupplier):
     def __init__(self, traces):
-        self.get_traces(traces)
+        self.traces = traces
         self.preprocess_traces()
         self.calc_max_replication_rate()
-
-    def get_traces(self, traces):
-        """Converts input to pandas DataFrame
-
-        Parameters
-        ----------
-        traces: str, pandas.DataFrame, or numpy.ndarray
-            A table where each row corresponds to a PCR reaction curve and
-            each column is a cycle in the reaction.
-        """
-        options = {str: read_csv, DataFrame: lambda df: df, ndarray: DataFrame}
-        self.traces = options[type(traces)](traces)
 
     def preprocess_traces(self):
         """Preprocesses PRC reaction curves via dropping initial values,

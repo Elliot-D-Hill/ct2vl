@@ -4,16 +4,20 @@ from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import GridSearchCV
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import PolynomialFeatures
-from ct2vl.rates import ReplicationRates, ReplicationRateFromTraces
-
+from ct2vl.rates import make_rates
 
 class Converter:
     """Uses PCR reaction curves to calibrate a model which converts Ct values to viral loads
 
     Parameters
     ----------
-    traces: str, pandas.DataFrame, or numpy.ndarray
-        A table where each row corresponds to a PCR reaction curve and each column is a cycle in the reaction
+    traces: str, pandas.DataFrame, numpy.ndarray, or dict
+        More commonly, a table where each row corresponds to a PCR reaction curve and 
+        each column is a cycle in the reaction.
+        (OR, if this contains columns named max_replication_rate and max_replication_rate_cycle, 
+        these columns are parallel arrays where for trace[j], the maximum replication rate was 
+        max_replication_rate[j] and that rate was observed at cycle max_replication_rate_cycle[j]. 
+        In the unlikely case that this is the type of input data you have.)
     LoD: float
         Limit of detection (LoD): copies of SARS-CoV-2 viral genomes/mL (copies/mL; viral load at the LoD)
     Ct_at_LoD
@@ -21,7 +25,8 @@ class Converter:
     """
 
     """
-    traces: Union[str, DataFrame, ndarray]
+    Member variables
+    ----------------
     LoD: float
     Ct_at_LoD: float
     max_replication_rate_cycle: array = field(init=False)
@@ -29,13 +34,8 @@ class Converter:
     model: LinearRegression = field(init=False)
     """
 
-    def __init__(self, traces, LoD, Ct_at_LoD, max_replication_rates=None):
-        if traces is not None:
-            self.replication_rate_supplier = ReplicationRateFromTraces(traces)
-        elif max_replication_rates is not None:
-            self.replication_rate_supplier = ReplicationRates(max_replication_rates)
-        else:
-            raise ValueError("Please supply either traces or max replication rate data")
+    def __init__(self, traces, LoD, Ct_at_LoD):
+        self.replication_rate_supplier = make_rates(traces)
         self.calibrate()
         self.LoD = LoD
         self.Ct_at_LoD = Ct_at_LoD

@@ -1,13 +1,13 @@
 from numpy import allclose
 from pytest import fixture
-from ct2vl.rates import ReplicationRateFromTraces
+from ct2vl.rates import ReplicationRateFromTraces, make_rates
 from tests import cases
 
 
 @fixture
 def dummy_rate_calc(tmp_path):
     cases.main_calibrate_input.to_csv(f"{tmp_path}/infile", index=False)
-    return ReplicationRateFromTraces(traces=f"{tmp_path}/infile")
+    return make_rates(f"{tmp_path}/infile")
 
 
 # HERE

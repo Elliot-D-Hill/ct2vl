@@ -29,11 +29,13 @@ class Converter:
     model: LinearRegression = field(init=False)
     """
 
-    def __init__(self, LoD, Ct_at_LoD, traces=None, max_replication_rates=None):
+    def __init__(self, traces, LoD, Ct_at_LoD, max_replication_rates=None):
         if traces is not None:
             self.replication_rate_supplier = ReplicationRateFromTraces(traces)
         elif max_replication_rates is not None:
             self.replication_rate_supplier = ReplicationRates(max_replication_rates)
+        else:
+            raise ValueError("Please supply either traces or max replication rate data")
         self.calibrate()
         self.LoD = LoD
         self.Ct_at_LoD = Ct_at_LoD

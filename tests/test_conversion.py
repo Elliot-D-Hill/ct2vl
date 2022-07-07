@@ -26,21 +26,3 @@ def test_ct_to_viral_load(dummy_converter):
     dummy_converter.model.coef_ = cases.calibrate_output
     viral_load = dummy_converter.ct_to_viral_load(cases.ct_to_viral_load_input)
     assert allclose(cases.ct_to_viral_load_output, viral_load)
-
-
-def test_preprocess_traces(dummy_converter):
-    dummy_converter.traces = cases.preprocess_traces_input
-    dummy_converter.preprocess_traces()
-    assert allclose(dummy_converter.traces, cases.preprocess_traces_output)
-
-
-def test_get_max_replication_rate(dummy_converter):
-    dummy_converter.traces = cases.get_max_replication_rate_input
-    dummy_converter.get_max_replication_rate()
-    assert allclose(
-        dummy_converter.max_replication_rate_cycle,
-        cases.get_max_replication_rate_output[0],
-    )
-    assert allclose(
-        dummy_converter.max_replication_rate, cases.get_max_replication_rate_output[1]
-    )

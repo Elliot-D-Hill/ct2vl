@@ -1,6 +1,6 @@
 from pickle import dump, load
 from numpy import log10
-from pandas import DataFrame, read_csv
+from pandas import DataFrame
 from ct2vl.cli import configure_arguments
 from ct2vl.conversion import Converter
 from pathlib import Path
@@ -14,16 +14,14 @@ def main():
     args = configure_arguments()
 
     if args.mode == "calibrate":
-        print("LoD", args.LoD, "Ct_at_LoD", args.Ct_at_LoD)
         converter = Converter(args.traces, args.LoD, args.Ct_at_LoD)
-        print(converter.ct_to_viral_load(21.1))
         with open(calibration_filepath, "wb") as f:
             dump(converter, f)
         print("Calibration complete.")
     elif args.mode == "convert":
         if not calibration_filepath.is_file():
             raise ValueError(
-                "You must calibrate ct2vl before you can use the convert argument"
+                "You must calibrate ct2vl before you can use the 'convert' argument."
             )
         with open(calibration_filepath, "rb") as f:
             calibrated_converter = load(f)

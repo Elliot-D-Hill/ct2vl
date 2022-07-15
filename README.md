@@ -17,7 +17,7 @@ converter = Converter(traces="traces.csv", LoD=100.0, Ct_at_LoD=37.96)
 ct_values = [23.1, 31.8, 28.4, 34.0, 30.2]
 viral_loads = converter.ct_to_viral_load(ct_values)
 ```
-The `traces` argument of `Converter` can also accept a pandas DataFrame or numpy ndarray.
+In addition to a filepath, the `traces` argument of `Converter` can also accept a pandas DataFrame or numpy ndarray.
 
 ### Command line tool
 
@@ -42,9 +42,9 @@ or
 
 Output can be saved to a file by providing a filepath to the optional flag `--output`
 
-    python3 -m ct2vl convert 23.1 --output example/path//viral_loads.tsv
+    python3 -m ct2vl convert 23.1 --output example/path/viral_loads.tsv
 
-## Input
+## Descriptions of command line arguments
 
 The command line tool has two modes `calibrate` and `convert`.
 
@@ -59,6 +59,8 @@ The command line tool has two modes `calibrate` and `convert`.
 For `calibrate` mode, `traces` is a csv file where each row corresponds to a PCR reaction curve and each column is a cycle in the reaction (example below).
 
 ## Example `traces` csv file
+
+This file is available for download [here](https://gist.github.com/Elliot-D-Hill/1ef5b826d23ffd6f29397958ca23eb7b). Each row is a PCR reaction curve for a given covid test and each column is a cycle in the PCR reaction.
 
 <div>
 <table border="1" class="dataframe">
